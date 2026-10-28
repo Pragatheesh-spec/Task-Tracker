@@ -123,13 +123,13 @@
                     </div>
                     <h2 class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">Today's Daily Pulse</h2>
                     <p class="text-slate-400 text-xs sm:text-sm leading-relaxed">
-                        Track progress for Gym/Calisthenics, AI/ML Study, Business Plan, Japanese Study, and school assignments[cite: 3].
+                        Track progress for Core 4 habits plus any custom tasks scheduled for today.
                     </p>
 
                     <!-- Quick Stat Pills -->
                     <div class="grid grid-cols-2 gap-3 pt-2">
                         <div class="glass-card rounded-2xl p-3.5 border border-slate-800 text-left">
-                            <span class="text-xs text-slate-400 block mb-1 font-medium">Daily Completed</span>
+                            <span class="text-xs text-slate-400 block mb-1 font-medium">Today's Completed</span>
                             <span id="daily-completed-count" class="text-xl font-bold text-emerald-400">0 / 4</span>
                         </div>
                         <div class="glass-card rounded-2xl p-3.5 border border-slate-800 text-left">
@@ -154,7 +154,7 @@
                         <!-- Center Dynamic Overlay Text -->
                         <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none z-0">
                             <span id="chart-percentage" class="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">0%</span>
-                            <span class="text-xs uppercase tracking-wider text-slate-400 font-semibold mt-1">Daily Tasks</span>
+                            <span class="text-xs uppercase tracking-wider text-slate-400 font-semibold mt-1">Today's Progress</span>
                         </div>
                     </div>
                 </div>
@@ -327,7 +327,7 @@
                 <div class="flex items-center justify-center space-x-4 pt-2 text-[11px] text-slate-400 border-t border-slate-800">
                     <div class="flex items-center space-x-1.5">
                         <div class="w-3 h-3 rounded-full bg-emerald-500"></div>
-                        <span>All Core Completed</span>
+                        <span>All Today's Tasks Completed</span>
                     </div>
                     <div class="flex items-center space-x-1.5">
                         <div class="w-3 h-3 rounded-full bg-slate-800 border border-slate-700"></div>
@@ -571,10 +571,23 @@
         let scheduledReminderTime = localStorage.getItem('tasktracker_reminder_time') || '18:00';
         let currentCalendarDate = new Date();
 
+        // Helper function to check if a deadline string matches today's date
+        function isDeadlineToday(deadlineStr) {
+            if (!deadlineStr) return false;
+            const deadlineDate = new Date(deadlineStr);
+            const today = new Date();
+            return deadlineDate.toDateString() === today.toDateString();
+        }
+
+        // Get all tasks relevant for today's progress (Core 4 Daily Habits + Custom tasks due today)
+        function getTodaysTasks() {
+            return tasks.filter(t => t.isDaily || isDeadlineToday(t.deadline));
+        }
+
         // Initialize App
         window.onload = function() {
             loadTasksFromStorage();
-            checkAndResetDailyTasks(); // Check for new day reset
+            checkAndResetDailyTasks();
             initChart();
             renderDashboard();
             renderTasks();
@@ -601,13 +614,11 @@
             localStorage.setItem('task_tracker_data_v3', JSON.stringify(tasks));
         }
 
-        // Automatic Daily Reset for Core 4 Habits
         function checkAndResetDailyTasks() {
             const todayStr = new Date().toDateString();
             const lastActiveDate = localStorage.getItem('task_tracker_last_date');
 
             if (lastActiveDate && lastActiveDate !== todayStr) {
-                // New calendar day detected! Reset daily tasks
                 tasks.forEach(t => {
                     if (t.isDaily) {
                         t.completed = false;
@@ -616,7 +627,7 @@
                     }
                 });
                 saveTasksToStorage();
-                showToast('New day started! Core 4 habits have been reset.', 'success');
+                showToast('New day started! Core 4 habits reset.', 'success');
             }
 
             localStorage.setItem('task_tracker_last_date', todayStr);
@@ -651,16 +662,13 @@
             const firstDayIndex = new Date(year, month, 1).getDay();
             const totalDays = new Date(year, month + 1, 0).getDate();
 
-            // Load completion history from storage (Format: {"YYYY-MM-DD": true})
             const history = JSON.parse(localStorage.getItem('task_completion_history') || '{}');
 
-            // Blank padding for previous month days
             for (let i = 0; i < firstDayIndex; i++) {
                 const emptyCell = document.createElement('div');
                 grid.appendChild(emptyCell);
             }
 
-            // Render days of current month
             for (let day = 1; day <= totalDays; day++) {
                 const dayCell = document.createElement('div');
                 const formattedMonth = String(month + 1).padStart(2, '0');
@@ -683,9 +691,9 @@
         }
 
         function recordTodayCompletionStatus() {
-            const dailyTasks = tasks.filter(t => t.isDaily);
-            const completedDaily = dailyTasks.filter(t => t.completed).length;
-            const totalDaily = dailyTasks.length;
+            const todaysTasks = getTodaysTasks();
+            const completedToday = todaysTasks.filter(t => t.completed).length;
+            const totalToday = todaysTasks.length;
 
             const now = new Date();
             const year = now.getFullYear();
@@ -695,10 +703,10 @@
 
             const history = JSON.parse(localStorage.getItem('task_completion_history') || '{}');
 
-            if (totalDaily > 0 && completedDaily === totalDaily) {
+            if (totalToday > 0 && completedToday === totalToday) {
                 history[dateKey] = true;
             } else {
-                delete history[dateKey]; // Remove if incomplete
+                delete history[dateKey];
             }
 
             localStorage.setItem('task_completion_history', JSON.stringify(history));
@@ -716,7 +724,7 @@
             chartInstance = new Chart(ctx, {
                 type: 'doughnut',
                 data: {
-                    labels: ['Completed Daily', 'Remaining Daily'],
+                    labels: ['Completed Today', 'Remaining Today'],
                     datasets: [{
                         data: [0, 4],
                         backgroundColor: [
@@ -746,28 +754,28 @@
 
         // Render Top Dashboard Data & Pie Chart Progress
         function renderDashboard() {
-            const dailyTasks = tasks.filter(t => t.isDaily);
-            const completedDaily = dailyTasks.filter(t => t.completed).length;
-            const totalDaily = dailyTasks.length;
+            // Includes Core 4 habits + Custom tasks with today's deadline
+            const todaysTasks = getTodaysTasks();
+            const completedToday = todaysTasks.filter(t => t.completed).length;
+            const totalToday = todaysTasks.length;
             
-            const percentage = totalDaily > 0 ? Math.round((completedDaily / totalDaily) * 100) : 0;
+            const percentage = totalToday > 0 ? Math.round((completedToday / totalToday) * 100) : 0;
 
-            // Record completion status for streak calendar
             recordTodayCompletionStatus();
 
-            // Update Donut Chart
+            // Update Donut Chart Data
             if (chartInstance) {
-                chartInstance.data.datasets[0].data = [completedDaily, Math.max(0, totalDaily - completedDaily)];
+                chartInstance.data.datasets[0].data = [completedToday, Math.max(0, totalToday - completedToday)];
                 chartInstance.update();
             }
 
             document.getElementById('chart-percentage').innerText = `${percentage}%`;
-            document.getElementById('daily-completed-count').innerText = `${completedDaily} / ${totalDaily}`;
+            document.getElementById('daily-completed-count').innerText = `${completedToday} / ${totalToday}`;
             
             const pendingTotal = tasks.filter(t => !t.completed).length;
             document.getElementById('total-pending-count').innerText = pendingTotal;
 
-            // Calculate streak count from history
+            // Calculate streak count
             const history = JSON.parse(localStorage.getItem('task_completion_history') || '{}');
             let streak = 0;
             let checkDate = new Date();
@@ -785,7 +793,8 @@
             }
             document.getElementById('streak-counter').innerText = `${streak} Day Streak 🔥`;
 
-            // Render Right Side Habit Summary
+            // Render Habit Summary
+            const dailyTasks = tasks.filter(t => t.isDaily);
             const summaryContainer = document.getElementById('quick-habits-summary');
             summaryContainer.innerHTML = '';
 
@@ -965,7 +974,6 @@
         }
 
         function clearCompletedTasks() {
-            // Keep all uncompleted tasks AND any Core 4 daily habits (resetting completed daily habits)
             tasks = tasks.map(task => {
                 if (task.isDaily && task.completed) {
                     return { ...task, completed: false };
@@ -1308,7 +1316,7 @@
                         const diffMins = Math.round((dl - now) / 60000);
 
                         if (diffMins === 15 && !task.notified15) {
-                            task.notified15 = true;git 
+                            task.notified15 = true;
                             sendNotification(`Task Due Soon!`, `"${task.title}" is due in 15 minutes.`);
                             showToast(`15m left for "${task.title}"`, 'warning');
                         } else if (diffMins === 0 && !task.notifiedDue) {
