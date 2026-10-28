@@ -1093,13 +1093,30 @@
             }
         }
 
+        // Register Service Worker on Load
+        if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('sw.js')
+            .then(() => console.log('Service Worker Registered'))
+            .catch((err) => console.log('SW registration failed:', err));
+        }
+
+        // Updated Mobile-Safe Notification Function
         function sendNotification(title, body) {
-            if ('Notification' in window && Notification.permission === 'granted') {
-                new Notification(title, {
-                    body: body,
-                    icon: 'https://cdn-icons-png.flaticon.com/512/2097/2097276.png'
-                });
-            }
+        if (!('Notification' in window)) return;
+
+        if (Notification.permission === 'granted') {
+            navigator.serviceWorker.ready.then((registration) => {
+            registration.showNotification(title, {
+                body: body,
+                icon: 'https://cdn-icons-png.flaticon.com/512/2097/2097276.png',
+                badge: 'https://cdn-icons-png.flaticon.com/512/2097/2097276.png',
+                vibrate: [200, 100, 200]
+            });
+            }).catch(() => {
+            // Fallback if service worker isn't ready
+            new Notification(title, { body: body });
+            });
+        }
         }
 
         // Background Reminder & Schedule Checker
