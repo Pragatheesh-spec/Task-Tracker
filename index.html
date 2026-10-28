@@ -80,7 +80,13 @@
             </div>
 
             <!-- Top Header Actions -->
-            <div class="flex items-center space-x-2 sm:space-x-4">
+            <div class="flex items-center space-x-2 sm:space-x-3">
+                <!-- Streak Calendar Button -->
+                <button onclick="openCalendarModal()" class="flex items-center space-x-1.5 text-xs font-semibold px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-emerald-400 transition-all cursor-pointer">
+                    <i class="fa-solid fa-calendar-days"></i>
+                    <span class="hidden sm:inline">Streak Calendar</span>
+                </button>
+
                 <button id="pwa-install-btn" onclick="openPwaModal()" class="flex items-center space-x-2 text-xs font-semibold px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 transition-all">
                     <i class="fa-solid fa-mobile-screen text-white"></i>
                     <span class="hidden sm:inline">Add to Phone</span>
@@ -89,11 +95,6 @@
                 <button id="notification-toggle-btn" onclick="toggleNotifications()" class="flex items-center space-x-2 text-xs font-semibold px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 transition-all">
                     <i id="notif-bell-icon" class="fa-solid fa-bell text-amber-400"></i>
                     <span id="notif-btn-text" class="hidden sm:inline">Enable Alerts</span>
-                </button>
-
-                <button onclick="triggerVoiceCheckPrompt()" class="flex items-center space-x-1.5 text-xs font-semibold px-3 py-2 rounded-xl bg-indigo-950 hover:bg-indigo-900 border border-indigo-700/60 text-indigo-200 transition-all shadow-md cursor-pointer">
-                    <i class="fa-solid fa-microphone text-indigo-400"></i>
-                    <span class="hidden md:inline">Voice Check</span>
                 </button>
 
                 <button onclick="openAddTaskModal()" class="flex items-center space-x-2 bg-white hover:bg-slate-200 text-black font-bold text-xs sm:text-sm px-4 py-2 rounded-xl shadow-lg shadow-white/10 transition-all transform active:scale-95 cursor-pointer">
@@ -109,7 +110,6 @@
 
         <!-- Central Progress & Statistics Dashboard (Hero Section) -->
         <section class="glass-panel rounded-3xl p-6 sm:p-8 glow-effect relative overflow-hidden">
-            <!-- Background Decorative Glows -->
             <div class="absolute -top-24 -left-24 w-60 h-60 bg-white/5 rounded-full blur-3xl pointer-events-none"></div>
             <div class="absolute -bottom-24 -right-24 w-60 h-60 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none"></div>
 
@@ -117,13 +117,13 @@
                 
                 <!-- Left Details / Streak Info -->
                 <div class="md:col-span-4 space-y-4 text-center md:text-left">
-                    <div class="inline-flex items-center space-x-2 bg-white/10 border border-white/20 px-3 py-1 rounded-full text-white text-xs font-semibold">
+                    <div class="inline-flex items-center space-x-2 bg-white/10 border border-white/20 px-3 py-1 rounded-full text-white text-xs font-semibold cursor-pointer" onclick="openCalendarModal()">
                         <i class="fa-solid fa-fire text-amber-400"></i>
                         <span id="streak-counter">0 Day Streak</span>
                     </div>
                     <h2 class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">Today's Daily Pulse</h2>
                     <p class="text-slate-400 text-xs sm:text-sm leading-relaxed">
-                        Track progress for Gym/Calisthenics, AI/ML Study, Business Plan, Japanese Study, and school assignments.
+                        Track progress for Gym/Calisthenics, AI/ML Study, Business Plan, Japanese Study, and school assignments[cite: 3].
                     </p>
 
                     <!-- Quick Stat Pills -->
@@ -279,9 +279,9 @@
             <button onclick="openAddTaskModal()" class="flex flex-col items-center justify-center w-12 h-12 bg-white text-black rounded-full shadow-lg -mt-5 font-bold">
                 <i class="fa-solid fa-plus text-xl"></i>
             </button>
-            <button onclick="triggerVoiceCheckPrompt()" class="mobile-nav-item flex flex-col items-center space-y-1 text-slate-400 focus:text-white">
-                <i class="fa-solid fa-volume-high text-lg"></i>
-                <span class="text-[10px] font-medium">Voice Check</span>
+            <button onclick="openCalendarModal()" class="mobile-nav-item flex flex-col items-center space-y-1 text-slate-400 focus:text-white">
+                <i class="fa-solid fa-calendar-days text-lg"></i>
+                <span class="text-[10px] font-medium">Calendar</span>
             </button>
             <button onclick="openPwaModal()" class="mobile-nav-item flex flex-col items-center space-y-1 text-slate-400 focus:text-white">
                 <i class="fa-solid fa-mobile-screen text-lg"></i>
@@ -290,7 +290,59 @@
         </div>
     </nav>
 
-    <!-- Modal: Voice Read Prompt ("Would you like me to read the tasks which are due?") -->
+    <!-- Modal: Calendar / Streak Tracker View -->
+    <div id="calendar-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md hidden">
+        <div class="glass-panel w-full max-w-md rounded-3xl p-6 sm:p-8 space-y-6 shadow-2xl border border-slate-700 relative animate-fade-in">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+                <h3 class="text-lg font-bold text-white flex items-center space-x-2">
+                    <i class="fa-solid fa-calendar-days text-emerald-400"></i>
+                    <span>Streak Completion Calendar</span>
+                </h3>
+                <button onclick="closeCalendarModal()" class="text-slate-400 hover:text-white text-lg cursor-pointer">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div class="space-y-4">
+                <div class="flex items-center justify-between">
+                    <button onclick="changeCalendarMonth(-1)" class="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs">
+                        <i class="fa-solid fa-chevron-left"></i>
+                    </button>
+                    <h4 id="calendar-month-year" class="text-sm font-bold text-white">October 2026</h4>
+                    <button onclick="changeCalendarMonth(1)" class="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs">
+                        <i class="fa-solid fa-chevron-right"></i>
+                    </button>
+                </div>
+
+                <!-- Weekdays Header -->
+                <div class="grid grid-cols-7 gap-1 text-center text-[11px] font-semibold text-slate-400">
+                    <div>Su</div><div>Mo</div><div>Tu</div><div>We</div><div>Th</div><div>Fr</div><div>Sa</div>
+                </div>
+
+                <!-- Days Grid -->
+                <div id="calendar-days-grid" class="grid grid-cols-7 gap-1.5 text-center text-xs">
+                    <!-- Populated dynamically -->
+                </div>
+
+                <div class="flex items-center justify-center space-x-4 pt-2 text-[11px] text-slate-400 border-t border-slate-800">
+                    <div class="flex items-center space-x-1.5">
+                        <div class="w-3 h-3 rounded-full bg-emerald-500"></div>
+                        <span>All Core Completed</span>
+                    </div>
+                    <div class="flex items-center space-x-1.5">
+                        <div class="w-3 h-3 rounded-full bg-slate-800 border border-slate-700"></div>
+                        <span>Incomplete / Rest</span>
+                    </div>
+                </div>
+            </div>
+
+            <button onclick="closeCalendarModal()" class="w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-slate-200 transition-all cursor-pointer">
+                Close
+            </button>
+        </div>
+    </div>
+
+    <!-- Modal: Voice Read Prompt -->
     <div id="voice-prompt-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md hidden">
         <div class="glass-panel w-full max-w-sm rounded-3xl p-6 text-center space-y-6 shadow-2xl border border-slate-700 relative animate-fade-in">
             <div class="w-16 h-16 rounded-full bg-indigo-950 border border-indigo-500/40 flex items-center justify-center mx-auto text-indigo-300 text-2xl shadow-lg shadow-indigo-500/20">
@@ -517,10 +569,12 @@
         let chartInstance = null;
         let notificationsEnabled = false;
         let scheduledReminderTime = localStorage.getItem('tasktracker_reminder_time') || '18:00';
+        let currentCalendarDate = new Date();
 
         // Initialize App
         window.onload = function() {
             loadTasksFromStorage();
+            checkAndResetDailyTasks(); // Check for new day reset
             initChart();
             renderDashboard();
             renderTasks();
@@ -529,9 +583,9 @@
             document.getElementById('reminder-time-input').value = scheduledReminderTime;
         };
 
-        // Local Storage Persistence
+        // Local Storage Persistence & Daily Reset Logic
         function loadTasksFromStorage() {
-            const saved = localStorage.getItem('task_tracker_data_v2');
+            const saved = localStorage.getItem('task_tracker_data_v3');
             if (saved) {
                 try {
                     tasks = JSON.parse(saved);
@@ -544,7 +598,110 @@
         }
 
         function saveTasksToStorage() {
-            localStorage.setItem('task_tracker_data_v2', JSON.stringify(tasks));
+            localStorage.setItem('task_tracker_data_v3', JSON.stringify(tasks));
+        }
+
+        // Automatic Daily Reset for Core 4 Habits
+        function checkAndResetDailyTasks() {
+            const todayStr = new Date().toDateString();
+            const lastActiveDate = localStorage.getItem('task_tracker_last_date');
+
+            if (lastActiveDate && lastActiveDate !== todayStr) {
+                // New calendar day detected! Reset daily tasks
+                tasks.forEach(t => {
+                    if (t.isDaily) {
+                        t.completed = false;
+                        t.notified15 = false;
+                        t.notifiedDue = false;
+                    }
+                });
+                saveTasksToStorage();
+                showToast('New day started! Core 4 habits have been reset.', 'success');
+            }
+
+            localStorage.setItem('task_tracker_last_date', todayStr);
+        }
+
+        // Calendar Modal Management
+        function openCalendarModal() {
+            document.getElementById('calendar-modal').classList.remove('hidden');
+            renderCalendarGrid();
+        }
+
+        function closeCalendarModal() {
+            document.getElementById('calendar-modal').classList.add('hidden');
+        }
+
+        function changeCalendarMonth(direction) {
+            currentCalendarDate.setMonth(currentCalendarDate.getMonth() + direction);
+            renderCalendarGrid();
+        }
+
+        function renderCalendarGrid() {
+            const grid = document.getElementById('calendar-days-grid');
+            const monthYearLabel = document.getElementById('calendar-month-year');
+            grid.innerHTML = '';
+
+            const year = currentCalendarDate.getFullYear();
+            const month = currentCalendarDate.getMonth();
+
+            const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+            monthYearLabel.innerText = `${monthNames[month]} ${year}`;
+
+            const firstDayIndex = new Date(year, month, 1).getDay();
+            const totalDays = new Date(year, month + 1, 0).getDate();
+
+            // Load completion history from storage (Format: {"YYYY-MM-DD": true})
+            const history = JSON.parse(localStorage.getItem('task_completion_history') || '{}');
+
+            // Blank padding for previous month days
+            for (let i = 0; i < firstDayIndex; i++) {
+                const emptyCell = document.createElement('div');
+                grid.appendChild(emptyCell);
+            }
+
+            // Render days of current month
+            for (let day = 1; day <= totalDays; day++) {
+                const dayCell = document.createElement('div');
+                const formattedMonth = String(month + 1).padStart(2, '0');
+                const formattedDay = String(day).padStart(2, '0');
+                const dateKey = `${year}-${formattedMonth}-${formattedDay}`;
+
+                const isCompleted = history[dateKey];
+                const isToday = new Date().toDateString() === new Date(year, month, day).toDateString();
+
+                dayCell.className = `h-9 flex items-center justify-center rounded-xl text-xs font-semibold transition-all ${
+                    isCompleted 
+                    ? 'bg-emerald-500 text-black font-bold shadow-lg shadow-emerald-500/20' 
+                    : isToday 
+                    ? 'border border-white text-white bg-slate-800' 
+                    : 'bg-slate-900 text-slate-400 hover:bg-slate-800'
+                }`;
+                dayCell.innerText = day;
+                grid.appendChild(dayCell);
+            }
+        }
+
+        function recordTodayCompletionStatus() {
+            const dailyTasks = tasks.filter(t => t.isDaily);
+            const completedDaily = dailyTasks.filter(t => t.completed).length;
+            const totalDaily = dailyTasks.length;
+
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            const dateKey = `${year}-${month}-${day}`;
+
+            const history = JSON.parse(localStorage.getItem('task_completion_history') || '{}');
+
+            if (totalDaily > 0 && completedDaily === totalDaily) {
+                history[dateKey] = true;
+            } else {
+                delete history[dateKey]; // Remove if incomplete
+            }
+
+            localStorage.setItem('task_completion_history', JSON.stringify(history));
         }
 
         function saveReminderTime() {
@@ -553,7 +710,7 @@
             showToast(`Daily voice reminder saved for ${scheduledReminderTime}!`, 'success');
         }
 
-        // Chart.js Donut Chart Initialization (White Progress Ring)
+        // Chart.js Donut Chart Initialization
         function initChart() {
             const ctx = document.getElementById('dailyProgressChart').getContext('2d');
             chartInstance = new Chart(ctx, {
@@ -563,8 +720,8 @@
                     datasets: [{
                         data: [0, 4],
                         backgroundColor: [
-                            '#ffffff', // Sleek White ring segment for progress
-                            'rgba(255, 255, 255, 0.12)' // Semi-transparent white track base
+                            '#ffffff', 
+                            'rgba(255, 255, 255, 0.12)' 
                         ],
                         borderWidth: 0,
                         hoverOffset: 4,
@@ -595,27 +752,38 @@
             
             const percentage = totalDaily > 0 ? Math.round((completedDaily / totalDaily) * 100) : 0;
 
+            // Record completion status for streak calendar
+            recordTodayCompletionStatus();
+
             // Update Donut Chart
             if (chartInstance) {
                 chartInstance.data.datasets[0].data = [completedDaily, Math.max(0, totalDaily - completedDaily)];
                 chartInstance.update();
             }
 
-            // Update Donut Overlay Percentage Text
             document.getElementById('chart-percentage').innerText = `${percentage}%`;
-
-            // Update Quick Stats
             document.getElementById('daily-completed-count').innerText = `${completedDaily} / ${totalDaily}`;
             
             const pendingTotal = tasks.filter(t => !t.completed).length;
             document.getElementById('total-pending-count').innerText = pendingTotal;
 
-            let streak = parseInt(localStorage.getItem('task_pulse_streak') || '1');
-            if (completedDaily === totalDaily && totalDaily > 0) {
-                document.getElementById('streak-counter').innerText = `${streak} Day Streak 🔥`;
-            } else {
-                document.getElementById('streak-counter').innerText = `${streak} Day Streak`;
+            // Calculate streak count from history
+            const history = JSON.parse(localStorage.getItem('task_completion_history') || '{}');
+            let streak = 0;
+            let checkDate = new Date();
+            while (true) {
+                const y = checkDate.getFullYear();
+                const m = String(checkDate.getMonth() + 1).padStart(2, '0');
+                const d = String(checkDate.getDate()).padStart(2, '0');
+                const key = `${y}-${m}-${d}`;
+                if (history[key]) {
+                    streak++;
+                    checkDate.setDate(checkDate.getDate() - 1);
+                } else {
+                    break;
+                }
             }
+            document.getElementById('streak-counter').innerText = `${streak} Day Streak 🔥`;
 
             // Render Right Side Habit Summary
             const summaryContainer = document.getElementById('quick-habits-summary');
@@ -718,7 +886,7 @@
 
                 card.innerHTML = `
                     <div class="flex items-start space-x-3.5">
-                        <button onclick="toggleTaskCompletion('${task.id}')" class="mt-1 w-5 h-5 rounded-lg border transition-all flex items-center justify-center flex-shrink-0 ${
+                        <button onclick="toggleTaskCompletion('${task.id}')" class="mt-1 w-5 h-5 rounded-lg border transition-all flex items-center justify-center flex-shrink-0 cursor-pointer ${
                             task.completed 
                             ? 'bg-white border-white text-black' 
                             : 'border-slate-600 hover:border-white bg-slate-900 text-transparent'
@@ -732,10 +900,10 @@
                                     ${escapeHtml(task.title)}
                                 </h4>
                                 <div class="flex items-center space-x-1 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity">
-                                    <button onclick="editTask('${task.id}')" class="text-slate-400 hover:text-white p-1 text-xs">
+                                    <button onclick="editTask('${task.id}')" class="text-slate-400 hover:text-white p-1 text-xs cursor-pointer">
                                         <i class="fa-solid fa-pen"></i>
                                     </button>
-                                    <button onclick="deleteTask('${task.id}')" class="text-slate-400 hover:text-rose-400 p-1 text-xs">
+                                    <button onclick="deleteTask('${task.id}')" class="text-slate-400 hover:text-rose-400 p-1 text-xs cursor-pointer">
                                         <i class="fa-solid fa-trash"></i>
                                     </button>
                                 </div>
@@ -797,11 +965,18 @@
         }
 
         function clearCompletedTasks() {
-            tasks = tasks.filter(t => !t.completed || t.isDaily);
+            // Keep all uncompleted tasks AND any Core 4 daily habits (resetting completed daily habits)
+            tasks = tasks.map(task => {
+                if (task.isDaily && task.completed) {
+                    return { ...task, completed: false };
+                }
+                return task;
+            }).filter(task => !task.completed || task.isDaily);
+
             saveTasksToStorage();
             renderDashboard();
             renderTasks();
-            showToast('Completed tasks cleared', 'info');
+            showToast('Cleared completed custom tasks!', 'info');
         }
 
         function setPresetDeadline(type) {
@@ -855,6 +1030,7 @@
                     task.duration = duration;
                     task.reminder = reminder;
                     task.notes = notes;
+                    task.isDaily = (category === 'daily');
                 }
             } else {
                 const newTask = {
@@ -886,7 +1062,7 @@
 
             document.getElementById('edit-task-id').value = task.id;
             document.getElementById('task-title').value = task.title;
-            document.getElementById('task-category').value = task.category;
+            document.getElementById('task-category').value = task.category || (task.isDaily ? 'daily' : 'custom');
             document.getElementById('task-priority').value = task.priority || 'normal';
             document.getElementById('task-deadline').value = task.deadline || '';
             document.getElementById('task-duration').value = task.duration || '';
@@ -983,7 +1159,6 @@
             } else if (callback) { callback(); }
         }
 
-        // Trigger Voice Check Interactive Prompt ("Would you like me to read the tasks which are due?")
         function triggerVoiceCheckPrompt() {
             document.getElementById('voice-prompt-modal').classList.remove('hidden');
             const pendingCount = tasks.filter(t => !t.completed).length;
@@ -994,7 +1169,6 @@
             });
         }
 
-        // Microphone Voice Recognition ("Yes")
         function startVoiceListening() {
             const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
             if (!SpeechRecognition) return;
@@ -1015,7 +1189,6 @@
             try { recognition.start(); } catch (e) {}
         }
 
-        // Handle User Response to Voice Prompt
         function respondVoicePrompt(userWantsToRead) {
             document.getElementById('voice-prompt-modal').classList.add('hidden');
 
@@ -1030,7 +1203,6 @@
         function readDueTasksAloud() {
             const pendingTasks = tasks.filter(t => !t.completed);
             const todayStr = new Date().toDateString();
-            
             const dueToday = pendingTasks.filter(t => t.deadline && new Date(t.deadline).toDateString() === todayStr);
 
             let textToSpeak = "";
@@ -1062,38 +1234,32 @@
         }
         
         if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('./sw.js')
-            .then(() => console.log('Service Worker Registered'))
-            .catch((err) => console.log('SW registration failed:', err));
+            navigator.serviceWorker.register('./sw.js')
+                .then(() => console.log('Service Worker Registered'))
+                .catch((err) => console.log('SW registration failed:', err));
         }
 
-
-        // Request System Notification Permission
         function toggleNotifications() {
             if (!('Notification' in window)) {
                 showToast('Notifications not supported on this browser', 'warning');
                 return;
             }
 
-        Notification.requestPermission().then((permission) => {
-            if (permission === 'granted') {
-            updateNotifButtonUI(true);
-            showToast('System Notifications Enabled!', 'success');
-            
-            // Send a test system notification immediately
-            sendNotification('TaskTracker Active', 'You will now receive system alerts for due tasks!');
-            } else {
-            updateNotifButtonUI(false);
-            showToast('Notifications blocked in browser settings', 'warning');
-            }
-        });
-}
+            Notification.requestPermission().then((permission) => {
+                if (permission === 'granted') {
+                    updateNotifButtonUI(true);
+                    showToast('System Notifications Enabled!', 'success');
+                    sendNotification('TaskTracker Active', 'You will now receive system alerts for due tasks!');
+                } else {
+                    updateNotifButtonUI(false);
+                    showToast('Notifications blocked in browser settings', 'warning');
+                }
+            });
+        }
 
         function updateNotifButtonUI(enabled) {
             const btnText = document.getElementById('notif-btn-text');
             const icon = document.getElementById('notif-bell-icon');
-            
-            // Check either the passed parameter or global state variable
             const isActive = (typeof enabled !== 'undefined') ? enabled : (Notification.permission === 'granted');
 
             if (isActive) {
@@ -1105,49 +1271,44 @@
             }
         }
 
-        // Register Service Worker on Load
-        // Updated Mobile-Safe Notification Function
         function sendNotification(title, body) {
             if (!('Notification' in window) || Notification.permission !== 'granted') return;
 
             if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
                 navigator.serviceWorker.ready.then((registration) => {
-                registration.showNotification(title, {
-                    body: body,
-                    icon: 'https://cdn-icons-png.flaticon.com/512/2097/2097276.png',
-                    badge: 'https://cdn-icons-png.flaticon.com/512/2097/2097276.png',
-                    vibrate: [200, 100, 200],
-                    tag: 'task-reminder',
-                    renotify: true
-                });
+                    registration.showNotification(title, {
+                        body: body,
+                        icon: 'https://cdn-icons-png.flaticon.com/512/2097/2097276.png',
+                        badge: 'https://cdn-icons-png.flaticon.com/512/2097/2097276.png',
+                        vibrate: [200, 100, 200],
+                        tag: 'task-reminder',
+                        renotify: true
+                    });
                 });
             } else {
                 new Notification(title, {
-                body: body,
-                icon: 'https://cdn-icons-png.flaticon.com/512/2097/2097276.png'
+                    body: body,
+                    icon: 'https://cdn-icons-png.flaticon.com/512/2097/2097276.png'
                 });
             }
-    }
+        }
 
-        // Background Reminder & Schedule Checker
         function startNotificationChecker() {
             setInterval(() => {
                 const now = new Date();
                 const timeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
                 
-                // Trigger daily voice reminder at scheduled time
                 if (timeStr === scheduledReminderTime && now.getSeconds() === 0) {
                     triggerVoiceCheckPrompt();
                 }
 
-                // Check upcoming deadline alerts
                 tasks.forEach(task => {
                     if (!task.completed && task.deadline) {
                         const dl = new Date(task.deadline);
                         const diffMins = Math.round((dl - now) / 60000);
 
                         if (diffMins === 15 && !task.notified15) {
-                            task.notified15 = true;
+                            task.notified15 = true;git 
                             sendNotification(`Task Due Soon!`, `"${task.title}" is due in 15 minutes.`);
                             showToast(`15m left for "${task.title}"`, 'warning');
                         } else if (diffMins === 0 && !task.notifiedDue) {
@@ -1158,7 +1319,7 @@
                         }
                     }
                 });
-            }, 1000); // Check every second
+            }, 1000);
         }
 
         function escapeHtml(str) {
