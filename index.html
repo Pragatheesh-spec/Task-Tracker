@@ -1060,64 +1060,74 @@
                 updateNotifButtonUI();
             }
         }
-
-        function toggleNotifications() {
-            if (!('Notification' in window)) {
-                showToast('Web Notifications not supported on this browser', 'warning');
-                return;
-            }
-
-            if (Notification.permission === 'granted') {
-                showToast('Notifications are active!', 'success');
-                triggerVoiceCheckPrompt();
-            } else if (Notification.permission !== 'denied') {
-                Notification.requestPermission().then(permission => {
-                    if (permission === 'granted') {
-                        notificationsEnabled = true;
-                        updateNotifButtonUI();
-                        showToast('Notifications enabled!', 'success');
-                        triggerVoiceCheckPrompt();
-                    }
-                });
-            } else {
-                showToast('Notifications blocked in browser settings', 'warning');
-            }
-        }
-
-        function updateNotifButtonUI() {
-            const btnText = document.getElementById('notif-btn-text');
-            const icon = document.getElementById('notif-bell-icon');
-            if (notificationsEnabled) {
-                btnText.innerText = 'Alerts Active';
-                icon.className = 'fa-solid fa-bell text-emerald-400';
-            }
-        }
-
-        // Register Service Worker on Load
+        
         if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('./sw.js')
             .then(() => console.log('Service Worker Registered'))
             .catch((err) => console.log('SW registration failed:', err));
         }
 
+
+        // Request System Notification Permission
+        function toggleNotifications() {
+            if (!('Notification' in window)) {
+                showToast('Notifications not supported on this browser', 'warning');
+                return;
+            }
+
+        Notification.requestPermission().then((permission) => {
+            if (permission === 'granted') {
+            updateNotifButtonUI(true);
+            showToast('System Notifications Enabled!', 'success');
+            
+            // Send a test system notification immediately
+            sendNotification('TaskTracker Active', 'You will now receive system alerts for due tasks!');
+            } else {
+            updateNotifButtonUI(false);
+            showToast('Notifications blocked in browser settings', 'warning');
+            }
+        });
+}
+
+        function updateNotifButtonUI(enabled) {
+            const btnText = document.getElementById('notif-btn-text');
+            const icon = document.getElementById('notif-bell-icon');
+            
+            // Check either the passed parameter or global state variable
+            const isActive = (typeof enabled !== 'undefined') ? enabled : (Notification.permission === 'granted');
+
+            if (isActive) {
+                btnText.innerText = 'Alerts Active';
+                icon.className = 'fa-solid fa-bell text-emerald-400';
+            } else {
+                btnText.innerText = 'Enable Alerts';
+                icon.className = 'fa-regular fa-bell text-slate-400';
+            }
+        }
+
+        // Register Service Worker on Load
         // Updated Mobile-Safe Notification Function
         function sendNotification(title, body) {
-        if (!('Notification' in window)) return;
+            if (!('Notification' in window) || Notification.permission !== 'granted') return;
 
-        if (Notification.permission === 'granted') {
-            navigator.serviceWorker.ready.then((registration) => {
-            registration.showNotification(title, {
+            if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+                navigator.serviceWorker.ready.then((registration) => {
+                registration.showNotification(title, {
+                    body: body,
+                    icon: 'https://cdn-icons-png.flaticon.com/512/2097/2097276.png',
+                    badge: 'https://cdn-icons-png.flaticon.com/512/2097/2097276.png',
+                    vibrate: [200, 100, 200],
+                    tag: 'task-reminder',
+                    renotify: true
+                });
+                });
+            } else {
+                new Notification(title, {
                 body: body,
-                icon: 'https://cdn-icons-png.flaticon.com/512/2097/2097276.png',
-                badge: 'https://cdn-icons-png.flaticon.com/512/2097/2097276.png',
-                vibrate: [200, 100, 200]
-            });
-            }).catch(() => {
-            // Fallback if service worker isn't ready
-            new Notification(title, { body: body });
-            });
-        }
-        }
+                icon: 'https://cdn-icons-png.flaticon.com/512/2097/2097276.png'
+                });
+            }
+    }
 
         // Background Reminder & Schedule Checker
         function startNotificationChecker() {
