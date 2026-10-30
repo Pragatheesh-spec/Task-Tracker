@@ -608,6 +608,16 @@
             } else {
                 tasks = [...DEFAULT_DAILY_TASKS];
             }
+
+            // Safeguard: Ensure Core 4 Habits are always present
+            DEFAULT_DAILY_TASKS.forEach(defaultTask => {
+                const exists = tasks.some(t => t.id === defaultTask.id || t.title === defaultTask.title);
+                if (!exists) {
+                    tasks.unshift(defaultTask);
+                }
+            });
+
+            saveTasksToStorage();
         }
 
         function saveTasksToStorage() {
